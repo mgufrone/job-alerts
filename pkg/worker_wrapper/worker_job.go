@@ -15,12 +15,12 @@ import (
 type WorkerResolver func(workerName string) worker.IWorker
 type WorkerJob struct {
 	worker WorkerResolver
-	cmd    job.ICommand
-	query  job.IQuery
+	cmd    job.ICommandRepository
+	query  job.IQueryRepository
 	lg     *log.Entry
 }
 
-func NewWorkerJob(wrk WorkerResolver, query job.IQuery, cmd job.ICommand, lg *log.Entry) worker.IRunner {
+func NewWorkerJob(wrk WorkerResolver, query job.IQueryRepository, cmd job.ICommandRepository, lg *log.Entry) worker.IRunner {
 	return &WorkerJob{wrk, cmd, query, lg}
 }
 

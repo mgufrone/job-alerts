@@ -36,10 +36,10 @@ func TestWorkerIndex_Run(t *testing.T) {
 			cmd.On("Create", mock.Anything, mock.Anything).Return(nil)
 		}
 		cb.On("Where", mock.Anything).Return(&cb)
-		cb.On("Where", mock.Anything).Return(&cb)
 		cb.On("Or", mock.Anything).Return(&cb)
 		cb.On("And", mock.Anything).Return(&cb)
 		cb.On("Paginate", mock.Anything, mock.Anything).Return(&cb)
+		query.On("Apply", mock.Anything).Return(query)
 		query.On("CriteriaBuilder").Return(&cb)
 		var err error
 		if tc.queryFail {

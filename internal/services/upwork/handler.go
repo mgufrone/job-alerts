@@ -15,13 +15,11 @@ import (
 )
 
 type Handler struct {
-	agent worker2.IHTTPClient
 }
 
 func (h *Handler) Fetch(ctx context.Context) ([]*job.Entity, error) {
-	feedURL := "https://weworkremotely.com/remote-jobs.rss"
+	feedURL := "https://www.upwork.com/ab/feed/jobs/rss"
 	fp := gofeed.NewParser()
-	fp.Client = h.agent.ToHTTPClient()
 	res, err := fp.ParseURLWithContext(feedURL, ctx)
 	if err != nil {
 		return nil, err
@@ -92,7 +90,10 @@ func (h *Handler) Fetch(ctx context.Context) ([]*job.Entity, error) {
 		//roleSplit := strings.Split(roleString, ":")
 		//companyName, role := strings.TrimSpace(roleSplit[0]), strings.TrimSpace(roleSplit[1])
 		companyName := "-"
-		role := roles[roleIdx]
+		var role string
+		if len(roles) > 0 {
+			role = roles[roleIdx]
+		}
 		companyURL := "-"
 		jb, err1 := job.NewJob(
 			uuid.New(),
@@ -100,7 +101,7 @@ func (h *Handler) Fetch(ctx context.Context) ([]*job.Entity, error) {
 			companyName, companyURL,
 			feed.Description, feed.Link, WorkerName, country, []string{})
 		if err1 != nil {
-			log.Error("cannot parse correctly", err)
+			log.Error("cannot parse correctly", err1)
 			continue
 		}
 		jb.SetJobType(jobType)
@@ -157,6 +158,6 @@ func (h *Handler) FetchJob(ctx context.Context, job2 *job.Entity) (*job.Entity, 
 	//return job2, nil
 }
 
-func NewHandler(agent worker2.IHTTPClient) worker2.IWorker {
-	return &Handler{agent: agent}
+func NewHandler() worker2.IWorker {
+	return &Handler{}
 }

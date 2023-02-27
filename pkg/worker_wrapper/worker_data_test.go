@@ -36,6 +36,7 @@ func TestWorkerDataJob_Run(t *testing.T) {
 		)
 		cb.On("Where", mock.Anything).Return(&cb)
 		query.On("CriteriaBuilder").Return(&cb)
+		query.On("Apply", mock.Anything).Return(&cb)
 		if c.failFetch {
 			err2 = errors.New("just an error. not a big deal")
 		}

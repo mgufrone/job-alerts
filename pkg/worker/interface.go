@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"go.uber.org/fx"
 	"mgufrone.dev/job-alerts/internal/domain/job"
 	http2 "net/http"
 )
@@ -24,4 +25,12 @@ type IRetryable interface {
 	ReQueue(ctx context.Context, data []byte) error
 	MaxRetry() int
 	Failed(ctx context.Context, data []byte) error
+}
+
+func AsJobWorker(f any) any {
+	return fx.Annotate(
+		f,
+		fx.As(new(IWorker)),
+		fx.ResultTags(`group:"workers"`),
+	)
 }

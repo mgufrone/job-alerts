@@ -31,14 +31,16 @@ func TestEntity_ScheduleAt(t *testing.T) {
 		{"*/5 1 * * *", "*/5 1 * * *", false},
 		{"5,10,15 * * * *", "5,10,15 * * * *", false},
 		{"5,10,15 */2 * * *", "5,10,15 */2 * * *", false},
+		// it will be immediately scheduled.
+		{"now", "now", false},
 	}
-	e := Entity{}
 	for _, c := range testCases {
+		e := Entity{}
 		err := e.SetScheduleAt(c.in)
 		if c.shouldError {
 			assert.NotNil(t, err, c.in)
 			continue
 		}
-		assert.Equal(t, c.out, e.ScheduleAt())
+		assert.Equal(t, c.out, e.ScheduleAt(), c)
 	}
 }

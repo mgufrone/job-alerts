@@ -12,11 +12,11 @@ import (
 )
 
 type WorkerDataJob struct {
-	main  job.ICommand
-	query job.IQuery
+	main  job.ICommandRepository
+	query job.IQueryRepository
 }
 
-func NewWorkerDataJob(main job.ICommand, query job.IQuery) worker.IRunner {
+func NewWorkerDataJob(main job.ICommandRepository, query job.IQueryRepository) worker.IRunner {
 	return &WorkerDataJob{main: main, query: query}
 }
 

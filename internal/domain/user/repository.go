@@ -19,7 +19,7 @@ type IQueryRepository interface {
 	// FindByID filter user by id
 	FindByID(ctx context.Context, id string) (out *Entity, err error)
 }
-type IMutateRepository interface {
+type ICommandRepository interface {
 	// Create a new user
 	Create(ctx context.Context, in *Entity) (err error)
 	// Update existing user
@@ -27,5 +27,5 @@ type IMutateRepository interface {
 	// Delete existing user
 	Delete(ctx context.Context, in *Entity) (err error)
 }
-type IQueryResolver func() IQueryRepository
-type IMutateResolver func() IMutateRepository
+type QueryResolver func() IQueryRepository
+type CommandResolver func() ICommandRepository

@@ -15,12 +15,12 @@ const (
 )
 
 type influxSync struct {
-	source job.IQuery
-	dest   job.ICommand
+	source job.IQueryRepository
+	dest   job.ICommandRepository
 	logger *logrus.Entry
 }
 
-func NewInfluxSync(source job.IQuery, dest job.ICommand, logger *logrus.Entry) worker.IRunner {
+func NewInfluxSync(source job.IQueryRepository, dest job.ICommandRepository, logger *logrus.Entry) worker.IRunner {
 	return &influxSync{source: source, dest: dest, logger: logger.WithField("component", "influx-sync")}
 }
 

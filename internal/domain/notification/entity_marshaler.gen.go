@@ -6,6 +6,7 @@ import (
 	jsonparser "github.com/buger/jsonparser"
 	uuid "github.com/google/uuid"
 	try "github.com/mgufrone/go-utils/try"
+	channel "mgufrone.dev/job-alerts/internal/domain/channel"
 	job "mgufrone.dev/job-alerts/internal/domain/job"
 	user "mgufrone.dev/job-alerts/internal/domain/user"
 	helpers "mgufrone.dev/job-alerts/pkg/helpers"
@@ -47,6 +48,17 @@ func (e *Entity) UnmarshalJSON(data []byte) error {
 		}
 		_ = ref.SetID(val)
 		return e.SetJob(&ref)
+	}, func() error {
+		var ref channel.Entity
+		val, err := helpers.GetUUID(data, "channelID")
+		if err != nil {
+			return err
+		}
+		if val == uuid.Nil {
+			return nil
+		}
+		_ = ref.SetID(val)
+		return e.SetChannel(&ref)
 	}, func() error {
 		val, err := jsonparser.GetBoolean(data, "isSent")
 		if err != nil {
@@ -94,9 +106,10 @@ func (e *Entity) MarshalJSON() ([]byte, error) {
 			}
 			return e.User().ID()
 		}(),
-		"jobID":  e.Job().ID(),
-		"isSent": e.IsSent(),
-		"sentAt": e.SentAt().UnixMilli(),
+		"jobID":     e.Job().ID(),
+		"channelID": e.Channel().ID(),
+		"isSent":    e.IsSent(),
+		"sentAt":    e.SentAt().UnixMilli(),
 		"readAt": func() interface{} {
 			if e.ReadAt() == nil {
 				return nil

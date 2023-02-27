@@ -39,7 +39,7 @@ func setupMockSubscribe() *mockValueSubscribe {
 }
 
 func TestNotification_Subscribe(t *testing.T) {
-	ch := test_data.ValidChannel()
+	ch := test_data.ValidChannel(true)
 	cases := []testCaseSubscribe{
 		{
 			nil,

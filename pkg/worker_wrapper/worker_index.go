@@ -15,8 +15,8 @@ import (
 
 type WorkerIndex struct {
 	worker worker.IWorker
-	cmd    job.ICommand
-	query  job.IQuery
+	cmd    job.ICommandRepository
+	query  job.IQueryRepository
 	logger *log.Entry
 }
 
@@ -28,7 +28,7 @@ func WithLogger(entry *log.Entry) IndexOption {
 	}
 }
 
-func NewWorkerIndex(wrk worker.IWorker, cmd job.ICommand, query job.IQuery, options ...IndexOption) worker.IRunner {
+func NewWorkerIndex(wrk worker.IWorker, cmd job.ICommandRepository, query job.IQueryRepository, options ...IndexOption) worker.IRunner {
 	runner := &WorkerIndex{worker: wrk, cmd: cmd, query: query}
 	for _, opt := range options {
 		opt(runner)

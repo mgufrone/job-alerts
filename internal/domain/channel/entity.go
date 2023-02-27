@@ -46,7 +46,7 @@ func (e *Entity) ScheduleAt() string {
 }
 
 func (e *Entity) SetScheduleAt(scheduleAt string) (err error) {
-	if !helpers.IsValidCron(scheduleAt) {
+	if scheduleAt != "now" && !helpers.IsValidCron(scheduleAt) {
 		err = errors.FieldError("scheduleAt", fmt.Errorf("invalid cron notation: %s", scheduleAt))
 		return
 	}

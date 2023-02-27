@@ -3,7 +3,7 @@ package wrapper
 import (
 	"fmt"
 	"github.com/opentracing/opentracing-go"
-	"io/ioutil"
+	"io"
 	"math/rand"
 	worker2 "mgufrone.dev/job-alerts/pkg/worker"
 	"net/http"
@@ -51,7 +51,7 @@ func (t *TracerRoundtripper) RoundTrip(req *http.Request) (*http.Response, error
 	sp.LogKV("http.agent", agent)
 	if req.GetBody != nil {
 		if bd, err := req.GetBody(); err == nil && bd != nil {
-			str, _ := ioutil.ReadAll(bd)
+			str, _ := io.ReadAll(bd)
 			sp.LogKV("http.req.body", string(str))
 		}
 	}

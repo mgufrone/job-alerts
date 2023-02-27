@@ -3,6 +3,7 @@ package notification
 
 import (
 	"github.com/google/uuid"
+	"mgufrone.dev/job-alerts/internal/domain/channel"
 	"mgufrone.dev/job-alerts/internal/domain/job"
 	"mgufrone.dev/job-alerts/internal/domain/user"
 	"time"
@@ -12,11 +13,21 @@ type Entity struct {
 	id        uuid.UUID
 	user      *user.Entity
 	job       *job.Entity
+	channel   *channel.Entity
 	isSent    bool
 	sentAt    time.Time
 	readAt    *time.Time
 	createdAt time.Time
 	updatedAt time.Time
+}
+
+func (e *Entity) Channel() *channel.Entity {
+	return e.channel
+}
+
+func (e *Entity) SetChannel(channel *channel.Entity) (res error) {
+	e.channel = channel
+	return
 }
 
 func (e *Entity) ID() uuid.UUID {

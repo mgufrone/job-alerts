@@ -23,6 +23,21 @@ func NewCriteriaBuilder(prefix string) criteria.ICriteriaBuilder {
 	return &CriteriaBuilder{prefix: prefix}
 }
 
+func (d CriteriaBuilder) has(slices []criteria.ICriteriaBuilder, other string) bool {
+	for _, k := range d.ands {
+		if v, ok := k.(CriteriaBuilder); ok && v.prefix == other {
+			return true
+		}
+	}
+	return false
+}
+func (d CriteriaBuilder) Has(other string) bool {
+	return d.has(d.ands, other) || d.has(d.ors, other) || d.has(d.nots, other)
+}
+func (d CriteriaBuilder) Prefix() string {
+	return d.prefix
+}
+
 func (d CriteriaBuilder) Paginate(page int, perPage int) criteria.ICriteriaBuilder {
 	d.pagination = []int{page, perPage}
 	return d

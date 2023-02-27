@@ -19,7 +19,8 @@ func (m *MockQueryRepository) FindByID(ctx context.Context, id string) (out *Ent
 }
 
 func (m *MockQueryRepository) CriteriaBuilder() criteria2.ICriteriaBuilder {
-	return m.Called().Get(0).(criteria2.ICriteriaBuilder)
+	args := m.Called()
+	return args.Get(0).(criteria2.ICriteriaBuilder)
 }
 
 func (m *MockQueryRepository) Apply(cb criteria2.ICriteriaBuilder) IQueryRepository {
@@ -39,6 +40,9 @@ func (m *MockQueryRepository) Count(ctx context.Context) (total int64, err error
 
 func (m *MockQueryRepository) GetAndCount(ctx context.Context) (out []*Entity, total int64, err error) {
 	args := m.Called(ctx)
+	if args.Get(0) == nil {
+		return nil, args.Get(1).(int64), args.Error(2)
+	}
 	return args.Get(0).([]*Entity), args.Get(1).(int64), args.Error(2)
 }
 

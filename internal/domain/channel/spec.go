@@ -13,10 +13,10 @@ func WhereID(id uuid.UUID) criteria.ICondition {
 }
 
 func WhereActive() criteria.ICondition {
-	return criteria.NewCondition("id", criteria.Eq, true)
+	return criteria.NewCondition("is_active", criteria.Eq, true)
 }
 func WhereInactive() criteria.ICondition {
-	return criteria.NewCondition("id", criteria.Eq, false)
+	return criteria.NewCondition("is_active", criteria.Eq, false)
 }
 
 func HasChannel(channel string) criteria.ICondition {
