@@ -18,6 +18,6 @@ func (b *Entity) BeforeCreate(scope *gorm.DB) (err error) {
 }
 
 type EntityTimestamp struct {
-	CreatedAt time.Time `gorm:"autoCreateTime;type:datetime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime;type:datetime"`
+	CreatedAt time.Time `gorm:"autoCreateTime;type:timestamp"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime;type:timestamp"`
 }

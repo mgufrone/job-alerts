@@ -26,13 +26,11 @@ func (e *Entity) UnmarshalJSON(data []byte) error {
 		if val == uuid.Nil {
 			return nil
 		}
-		roles, err := jsonparser.GetString(data, "user_roles")
+		roles, err := jsonparser.GetInt(data, "user_roles")
 		if err != nil {
 			return err
 		}
-		if roles != "" {
-			_ = ref.SetRoles([]string{roles})
-		}
+		_ = ref.SetRoles(user.Role(roles))
 		_ = ref.SetID(val)
 		return e.SetUser(&ref)
 	}, func() error {
@@ -47,6 +45,12 @@ func (e *Entity) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		return e.SetReceiver(val)
+	}, func() error {
+		val, err := jsonparser.GetBoolean(data, "isActive")
+		if err != nil {
+			return err
+		}
+		return e.SetIsActive(val)
 	}, func() error {
 		val, err := helpers.GetTime(data, "createdAt")
 		if err != nil {
@@ -64,11 +68,8 @@ func (e *Entity) UnmarshalJSON(data []byte) error {
 func (e *Entity) MarshalJSON() ([]byte, error) {
 	res := map[string]interface{}{
 		"id": e.ID(),
-		"user_roles": func() string {
-			if e.User() == nil || len(e.User().Roles()) == 0 {
-				return ""
-			}
-			return e.User().Roles()[0]
+		"user_roles": func() int {
+			return int(e.User().Roles())
 		}(),
 		"userID": func() uuid.UUID {
 			if e.User() == nil {
@@ -78,6 +79,7 @@ func (e *Entity) MarshalJSON() ([]byte, error) {
 		}(),
 		"channelType": e.ChannelType(),
 		"receiver":    e.Receiver(),
+		"isActive":    e.IsActive(),
 		"createdAt":   e.CreatedAt().UnixMilli(),
 		"updatedAt":   e.UpdatedAt().UnixMilli(),
 	}

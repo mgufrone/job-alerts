@@ -3,6 +3,7 @@ package notification
 import (
 	"context"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"mgufrone.dev/job-alerts/internal/domain/channel"
@@ -75,6 +76,7 @@ func setupMockLoop() *mockValueLoop {
 		jQuery: func() job.IQueryRepository {
 			return mv.jQuery
 		},
+		logger: logrus.NewEntry(logrus.New()),
 	}
 	return mv
 }
@@ -197,7 +199,7 @@ func TestUseCase_Looper(t *testing.T) {
 				mv.nCmd.AssertNumberOfCalls(t, "Create", 0)
 			},
 		},
-		// case 3: found a channel and active jobs
+		// case 3: found a channel and active jobs but already scheduled
 		{
 			func(mv *mockValueLoop) {
 				mCriteria := &criteria.MockCriteria{}
@@ -220,15 +222,15 @@ func TestUseCase_Looper(t *testing.T) {
 				mv.usrQuery.On("CriteriaBuilder").Return(mCriteria2)
 				mv.usrQuery.On("Apply", mock.Anything).Return(mv.usrQuery)
 				mv.usrQuery.On("Count", mock.Anything).Return(int64(1), nil)
-
+				jobs := []*job.Entity{test_data.ValidJob(), test_data.ValidJob()}
 				mv.jQuery.On("CriteriaBuilder").Return(mCriteria2)
 				mv.jQuery.On("Apply", mock.Anything).Return(mv.usrQuery)
-				mv.jQuery.On("GetAndCount", mock.Anything).Return([]*job.Entity{test_data.ValidJob(), test_data.ValidJob()}, int64(2), nil)
-
+				mv.jQuery.On("GetAndCount", mock.Anything).Return(jobs, int64(2), nil)
+				var notif notification.Entity
+				notif.SetJob(jobs[0])
 				mv.nQuery.On("CriteriaBuilder").Return(mCriteria2)
 				mv.nQuery.On("Apply", mock.Anything).Return(mv.usrQuery)
-				mv.nQuery.On("Count", mock.Anything).Once().Return(int64(1), nil)
-				mv.nQuery.On("Count", mock.Anything).Return(int64(0), nil)
+				mv.nQuery.On("GetAndCount", mock.Anything).Once().Return([]*notification.Entity{&notif}, int64(1), nil)
 
 				mv.nCmd.On("Create", mock.Anything, mock.Anything).Return(nil)
 			},
@@ -265,12 +267,12 @@ func TestUseCase_Looper(t *testing.T) {
 				}
 				mv.usrQuery.AssertNumberOfCalls(t, "Count", 1)
 				mv.usrChQuery.AssertNumberOfCalls(t, "Count", 0)
-				mv.nQuery.AssertNumberOfCalls(t, "Count", 2)
+				mv.nQuery.AssertNumberOfCalls(t, "GetAndCount", 1)
 				// the main idea would be this one
 				mv.nCmd.AssertNumberOfCalls(t, "Create", 1)
 			},
 		},
-		// case 3: found a channel and active jobs
+		// case 4: found a channel and active jobs and no records found on notifications table
 		{
 			func(mv *mockValueLoop) {
 				mCriteria := &criteria.MockCriteria{}
@@ -300,8 +302,7 @@ func TestUseCase_Looper(t *testing.T) {
 
 				mv.nQuery.On("CriteriaBuilder").Return(mCriteria2)
 				mv.nQuery.On("Apply", mock.Anything).Return(mv.usrQuery)
-				mv.nQuery.On("Count", mock.Anything).Once().Return(int64(1), nil)
-				mv.nQuery.On("Count", mock.Anything).Return(int64(0), nil)
+				mv.nQuery.On("GetAndCount", mock.Anything).Once().Return([]*notification.Entity{}, int64(0), nil)
 
 				mv.nCmd.On("Create", mock.Anything, mock.Anything).Return(nil)
 			},
@@ -338,9 +339,9 @@ func TestUseCase_Looper(t *testing.T) {
 				}
 				mv.usrQuery.AssertNumberOfCalls(t, "Count", 1)
 				mv.usrChQuery.AssertNumberOfCalls(t, "Count", 0)
-				mv.nQuery.AssertNumberOfCalls(t, "Count", 3)
+				mv.nQuery.AssertNumberOfCalls(t, "GetAndCount", 1)
 				// the main idea would be this one
-				mv.nCmd.AssertNumberOfCalls(t, "Create", 2)
+				mv.nCmd.AssertNumberOfCalls(t, "Create", 3)
 			},
 		},
 	}

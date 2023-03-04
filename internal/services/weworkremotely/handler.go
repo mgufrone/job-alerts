@@ -14,11 +14,13 @@ import (
 )
 
 type Handler struct {
+	client worker2.IHTTPClient
 }
 
 func (h *Handler) Fetch(ctx context.Context) ([]*job.Entity, error) {
 	feedURL := "https://weworkremotely.com/remote-jobs.rss"
 	fp := gofeed.NewParser()
+	fp.Client = h.client.ToHTTPClient()
 	res, err := fp.ParseURLWithContext(feedURL, ctx)
 	if err != nil {
 		return nil, err
@@ -53,7 +55,7 @@ func (h *Handler) FetchJob(ctx context.Context, job2 *job.Entity) (*job.Entity, 
 	if err != nil {
 		return nil, err
 	}
-	content, err := http.DefaultClient.Do(req)
+	content, err := h.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -91,6 +93,6 @@ func (h *Handler) FetchJob(ctx context.Context, job2 *job.Entity) (*job.Entity, 
 	return job2, nil
 }
 
-func NewHandler() worker2.IWorker {
-	return &Handler{}
+func NewHandler(client worker2.IHTTPClient) worker2.IWorker {
+	return &Handler{client: client}
 }

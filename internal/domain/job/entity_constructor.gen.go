@@ -2,7 +2,7 @@
 package job
 
 import (
-	"github.com/google/uuid"
+	uuid "github.com/google/uuid"
 	try "github.com/mgufrone/go-utils/try"
 	"time"
 )

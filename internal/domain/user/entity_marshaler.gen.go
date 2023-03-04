@@ -28,22 +28,33 @@ func (e *Entity) UnmarshalJSON(data []byte) error {
 		}
 		return e.SetStatus(Status(val))
 	}, func() error {
-		var res []string
-		_, err := jsonparser.ArrayEach(data, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-			res = append(res, string(value))
-		}, "roles")
+		val, err := jsonparser.GetInt(data, "roles")
 		if err != nil {
 			return err
 		}
-		return e.SetRoles(res)
+		return e.SetRoles(Role(val))
+	}, func() error {
+		val, err := helpers.GetTime(data, "createdAt")
+		if err != nil {
+			return err
+		}
+		return e.SetCreatedAt(val)
+	}, func() error {
+		val, err := helpers.GetTime(data, "updatedAt")
+		if err != nil {
+			return err
+		}
+		return e.SetUpdatedAt(val)
 	})
 }
 func (e *Entity) MarshalJSON() ([]byte, error) {
 	res := map[string]interface{}{
-		"id":     e.ID(),
-		"authID": e.AuthID(),
-		"status": int(e.Status()),
-		"roles":  e.Roles(),
+		"id":        e.ID(),
+		"authID":    e.AuthID(),
+		"status":    int(e.Status()),
+		"roles":     int(e.Roles()),
+		"createdAt": e.CreatedAt().UnixMilli(),
+		"updatedAt": e.UpdatedAt().UnixMilli(),
 	}
 	return json.Marshal(res)
 }

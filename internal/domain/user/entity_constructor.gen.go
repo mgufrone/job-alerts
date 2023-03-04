@@ -4,9 +4,10 @@ package user
 import (
 	uuid "github.com/google/uuid"
 	try "github.com/mgufrone/go-utils/try"
+	"time"
 )
 
-func New(id uuid.UUID, authID string, status Status, roles []string) (ent *Entity, err error) {
+func New(id uuid.UUID, authID string, status Status, roles Role, createdAt time.Time, updatedAt time.Time) (ent *Entity, err error) {
 	var res Entity
 	err = try.RunOrError(func() error {
 		return res.SetID(id)
@@ -16,6 +17,10 @@ func New(id uuid.UUID, authID string, status Status, roles []string) (ent *Entit
 		return res.SetStatus(status)
 	}, func() error {
 		return res.SetRoles(roles)
+	}, func() error {
+		return res.SetCreatedAt(createdAt)
+	}, func() error {
+		return res.SetUpdatedAt(updatedAt)
 	})
 	if err == nil {
 		ent = &res

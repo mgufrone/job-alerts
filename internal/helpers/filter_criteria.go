@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func FilterToCriteria(ch *channel.Entity, cb criteria.ICriteriaBuilder) criteria.ICriteriaBuilder {
+func FilterToCriteria(ch *channel.Entity, cb criteria.ICriteriaBuilder, tcb criteria.ICriteriaBuilder) criteria.ICriteriaBuilder {
 	var (
 		cr     map[string]interface{}
 		wheres []criteria.ICriteriaBuilder
@@ -24,7 +24,7 @@ func FilterToCriteria(ch *channel.Entity, cb criteria.ICriteriaBuilder) criteria
 			case []string:
 				val = vt
 			}
-			wheres = append(wheres, cb.Where(job.WhereTags(val)))
+			wheres = append(wheres, tcb.Where(job.WhereTags(val)))
 		case "keyword":
 			switch vt := v.(type) {
 			case string:

@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"mgufrone.dev/job-alerts/pkg/infrastructure/criteria"
 )
@@ -34,7 +35,7 @@ func (q *MockQueryRepository) GetAndCount(ctx context.Context) (out []*Entity, t
 	return args.Get(0).([]*Entity), args.Get(1).(int64), args.Error(2)
 }
 
-func (q *MockQueryRepository) FindByID(ctx context.Context, id string) (out *Entity, err error) {
+func (q *MockQueryRepository) FindByID(ctx context.Context, id uuid.UUID) (out *Entity, err error) {
 	args := q.Called(ctx, id)
 	return args.Get(0).(*Entity), args.Get(1).(error)
 }

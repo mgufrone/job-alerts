@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm/clause"
 	"mgufrone.dev/job-alerts/pkg/infrastructure/criteria"
 	"strings"
+	"time"
 )
 
 type CriteriaBuilder struct {
@@ -20,7 +21,7 @@ type CriteriaBuilder struct {
 }
 
 func NewCriteriaBuilder(prefix string) criteria.ICriteriaBuilder {
-	return &CriteriaBuilder{prefix: prefix}
+	return CriteriaBuilder{prefix: prefix}
 }
 
 func (d CriteriaBuilder) has(slices []criteria.ICriteriaBuilder, other string) bool {
@@ -145,12 +146,27 @@ func operator(condition criteria.ICondition) string {
 		return "in"
 	case criteria.NotIn:
 		return "not in"
+	case criteria.Between:
+		return "between"
 	}
 	return ""
 }
 func value(operator criteria.ICondition) interface{} {
 	if operator.Operator() == criteria.Like || operator.Operator() == criteria.NotLike {
 		return fmt.Sprintf("%%%s%%", operator.Value())
+	}
+	if operator.Operator() == criteria.Between {
+		switch val := operator.Value().(type) {
+		case []time.Time:
+			return fmt.Sprintf("'%s' and '%s'", val[0].Format(time.RFC3339), val[1].Format(time.RFC3339))
+		case []int:
+		case []int64:
+		case []int32:
+			return fmt.Sprintf("%d and %d", val[0], val[1])
+		case []float64:
+		case []float32:
+			return fmt.Sprintf("%.f and %.f", val[0], val[1])
+		}
 	}
 	return operator.Value()
 }
@@ -187,7 +203,11 @@ func (d CriteriaBuilder) Apply(db *gorm.DB) *gorm.DB {
 	if len(d.conditions) > 0 {
 		ses := db.WithContext(context.TODO())
 		for _, r := range d.conditions {
-			ses = ses.Where(fmt.Sprintf("%s %s ?", d.column(r.Field()), operator(r)), value(r))
+			if r.Operator() != criteria.Between {
+				ses = ses.Where(fmt.Sprintf("%s %s ?", d.column(r.Field()), operator(r)), value(r))
+			} else {
+				ses = ses.Where(fmt.Sprintf("%s %s %s", d.column(r.Field()), operator(r), value(r)))
+			}
 		}
 		db = db.Where(ses)
 	}

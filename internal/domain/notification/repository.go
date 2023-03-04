@@ -2,6 +2,7 @@ package notification
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"mgufrone.dev/job-alerts/pkg/infrastructure/criteria"
 )
 
@@ -17,7 +18,7 @@ type IQueryRepository interface {
 	// GetAndCount is shorthand for GetAll and Count
 	GetAndCount(ctx context.Context) (out []*Entity, total int64, err error)
 	// FindByID filter user by id
-	FindByID(ctx context.Context, id string) (out *Entity, err error)
+	FindByID(ctx context.Context, id uuid.UUID) (out *Entity, err error)
 }
 type ICommandRepository interface {
 	// Create a new user

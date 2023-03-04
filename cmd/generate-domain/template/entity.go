@@ -15,6 +15,7 @@ type pkgResolver string
 
 const (
 	helperPkg pkgResolver = "%root%/pkg/helpers"
+	usrPkg    pkgResolver = "%root%/internal/domain/user"
 	jsonPkg               = "github.com/buger/jsonparser"
 	tryPkg                = "github.com/mgufrone/go-utils/try"
 	uuidPkg               = "github.com/google/uuid"
@@ -191,15 +192,13 @@ func (e *Entity) generateMarshaler() error {
 					),
 				}
 				if types1[0] == "user" && types1[1] == "Entity" {
+					userPackage := usrPkg.String(e.PkgRoot)
 					roleKey := fmt.Sprintf("%s_roles", originalFieldName)
 					if originalFieldName == "lastModifiedBy" {
 						roleKey = "lastModifiedBy"
 					}
-					enc1 := jen.Id(fmt.Sprintf(`"%s"`, roleKey)).Op(":").Func().Call().String().Block(
-						jen.If(jen.Id("e").Dot(methodName(originalFieldName)).Call().Op("==").Nil().Op("||").Len(jen.Id("e").Dot(methodName(originalFieldName)).Call().Dot("Roles").Call()).Op("==").Id("0")).Block(
-							jen.Return(jen.Id(`""`)),
-						),
-						jen.Return(jen.Id("e").Dot(methodName(originalFieldName)).Call().Dot("Roles").Call().Index(jen.Id("0"))),
+					enc1 := jen.Id(fmt.Sprintf(`"%s"`, roleKey)).Op(":").Func().Call().Int().Block(
+						jen.Return(jen.Id("int").Call(jen.Id("e").Dot(methodName(originalFieldName)).Call().Dot("Roles").Call())),
 					).Call().Op(",")
 					enc = jen.Id(fmt.Sprintf(`"%s"`, fieldName)).Op(":").Func().Call().Qual(uuidPkg, "UUID").Block(
 						jen.If(jen.Id("e").Dot(methodName(originalFieldName)).Call().Op("==").Nil()).Block(
@@ -210,14 +209,12 @@ func (e *Entity) generateMarshaler() error {
 					marshals = append(marshals, enc1)
 					mshBlocks = append(mshBlocks,
 						jen.Id("roles").Op(",").Id("err").
-							Op(":=").Qual("github.com/buger/jsonparser", "GetString").
+							Op(":=").Qual("github.com/buger/jsonparser", "GetInt").
 							Call(jen.Id("data"), jen.Id(fmt.Sprintf(`"%s"`, roleKey))),
 						jen.If(jen.Id("err").Op("!=").Nil()).Block(
 							jen.Return(jen.Id("err")),
 						),
-						jen.If(jen.Id("roles").Op("!=").Id(`""`)).Block(
-							jen.Id("_").Op("=").Id("ref").Dot("SetRoles").Call(jen.Op("[]").String().Values(jen.Id("roles"))),
-						),
+						jen.Id("_").Op("=").Id("ref").Dot("SetRoles").Call(jen.Qual(userPackage, "Role").Call(jen.Id("roles"))),
 					)
 				}
 				msh = jen.Func().Call().Error().Block(

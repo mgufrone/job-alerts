@@ -52,7 +52,7 @@ func WhereTags(vals []string) criteria.ICondition {
 	if len(vals) == 0 {
 		return nil
 	}
-	return criteria.NewCondition("tags", criteria.In, vals)
+	return criteria.NewCondition("name", criteria.In, vals)
 }
 func WhereRoleContains(val string) criteria.ICondition {
 	if val == "" {

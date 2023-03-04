@@ -74,14 +74,14 @@ func TestEntity_Status(t *testing.T) {
 func TestEntity_Roles(t *testing.T) {
 	t.Parallel()
 	testCases := []struct {
-		in         []string
+		in         Role
 		shouldFail bool
 	}{
-		{[]string{}, true},
-		{[]string{""}, true},
-		{[]string{"", "1"}, true},
-		{[]string{"platform-admin"}, false},
-		{[]string{"platform-admin", "platform-user"}, false},
+		{0, true},
+		{User, false},
+		{Guest | User, false},
+		{Admin, false},
+		{Admin | User, false},
 	}
 	for _, c := range testCases {
 		var u Entity
@@ -97,19 +97,19 @@ func TestEntity_Roles(t *testing.T) {
 func TestEntity_HasRole(t *testing.T) {
 	t.Parallel()
 	testCases := []struct {
-		in    []string
-		check string
+		in    Role
+		check Role
 		out   bool
 	}{
-		{[]string{}, "", false},
-		{[]string{"ok"}, "", false},
-		{[]string{"ok", "ko"}, "kk", false},
-		{[]string{"ok", "ko"}, "ok", true},
-		{[]string{"ok", "ko", "kok", "kkok"}, "ko", true},
+		{0, 0, false},
+		{Guest, User, false},
+		{Guest | User, Admin, false},
+		{Admin | User, User, true},
+		{Guest | User, Guest, true},
 	}
 	for _, c := range testCases {
 		var u Entity
 		_ = u.SetRoles(c.in)
-		require.Equal(t, c.out, u.HasRole(c.check))
+		require.Equal(t, c.out, u.HasRole(c.check), c.in)
 	}
 }

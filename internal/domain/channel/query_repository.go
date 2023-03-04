@@ -2,6 +2,7 @@ package channel
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	criteria2 "mgufrone.dev/job-alerts/pkg/infrastructure/criteria"
 )
@@ -10,7 +11,7 @@ type MockQueryRepository struct {
 	mock.Mock
 }
 
-func (m *MockQueryRepository) FindByID(ctx context.Context, id string) (out *Entity, err error) {
+func (m *MockQueryRepository) FindByID(ctx context.Context, id uuid.UUID) (out *Entity, err error) {
 	args := m.Called(ctx, id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)

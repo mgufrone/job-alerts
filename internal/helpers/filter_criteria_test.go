@@ -138,7 +138,7 @@ func TestFilterCriteria(t *testing.T) {
 		cb.On("And", mock.Anything).Return(cb)
 		cb.On("And", mock.Anything, mock.Anything).Return(cb)
 		ch.SetCriterias(c.in)
-		cr := FilterToCriteria(&ch, cb)
+		cr := FilterToCriteria(&ch, cb, cb)
 		c.after(cr.(*criteria.MockCriteria))
 	}
 }

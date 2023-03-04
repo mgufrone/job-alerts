@@ -26,6 +26,7 @@ func ValidUserChannel(usr *user.Entity, chType string) *user_channel.Entity {
 		usr,
 		chType,
 		chTarget,
+		true,
 		time.Now(),
 		time.Now(),
 	)

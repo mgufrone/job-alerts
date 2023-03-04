@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"io"
 	"io/ioutil"
 	"mgufrone.dev/job-alerts/internal/domain/job"
 	worker2 "mgufrone.dev/job-alerts/pkg/worker"
@@ -123,7 +124,7 @@ func TestHandler_FetchJobFail(t *testing.T) {
 	agent := &worker2.MockHTTPClient{}
 	agent.On("Do", mock.Anything).
 		Return(&http.Response{
-			Body:       ioutil.NopCloser(strings.NewReader(``)),
+			Body:       io.NopCloser(strings.NewReader(``)),
 			StatusCode: http.StatusNotFound,
 		}, nil)
 	handler := NewHandler(agent)
@@ -265,7 +266,7 @@ twq('track','PageView');
 	agent := &worker2.MockHTTPClient{}
 	agent.On("Do", mock.Anything).
 		Return(&http.Response{
-			Body:       ioutil.NopCloser(strings.NewReader(mockHTML)),
+			Body:       io.NopCloser(strings.NewReader(mockHTML)),
 			StatusCode: http.StatusOK,
 		}, nil)
 	handler := NewHandler(agent)

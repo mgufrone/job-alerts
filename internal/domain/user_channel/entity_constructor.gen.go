@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func New(id uuid.UUID, user *user.Entity, channelType string, receiver string, createdAt time.Time, updatedAt time.Time) (ent *Entity, err error) {
+func New(id uuid.UUID, user *user.Entity, channelType string, receiver string, isActive bool, createdAt time.Time, updatedAt time.Time) (ent *Entity, err error) {
 	var res Entity
 	err = try.RunOrError(func() error {
 		return res.SetID(id)
@@ -18,6 +18,8 @@ func New(id uuid.UUID, user *user.Entity, channelType string, receiver string, c
 		return res.SetChannelType(channelType)
 	}, func() error {
 		return res.SetReceiver(receiver)
+	}, func() error {
+		return res.SetIsActive(isActive)
 	}, func() error {
 		return res.SetCreatedAt(createdAt)
 	}, func() error {

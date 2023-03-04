@@ -1,10 +1,14 @@
 package user_channel
 
 import (
+	"github.com/google/uuid"
 	"mgufrone.dev/job-alerts/internal/domain/user"
 	"mgufrone.dev/job-alerts/pkg/infrastructure/criteria"
 )
 
+func WhereID(id uuid.UUID) criteria.ICondition {
+	return criteria.NewCondition("user_id", criteria.Eq, id.String())
+}
 func WhereOwner(user *user.Entity) criteria.ICondition {
 	return criteria.NewCondition("user_id", criteria.Eq, user.ID().String())
 }
