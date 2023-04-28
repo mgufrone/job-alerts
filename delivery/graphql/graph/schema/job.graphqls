@@ -1,0 +1,34 @@
+enum Source {
+    Upwork
+    WeworkRemotely
+}
+type Job {
+    id: ID!
+    role: String!
+    description: String!
+    url: String!
+    salary: [Float!]!
+    companyName: String!
+    companyURL: String!
+    tags: [String!]!
+    source: Source!
+    location: String!
+    isRemote: Boolean!
+    jobType: String!
+    salaryCurrency: String!
+    createdAt: Time!
+    updatedAt: Time!
+}
+
+type JobResult {
+    edges: [Job!]!
+    pageInfo: PageInfo
+}
+input JobFilter {
+    keyword: String!
+    tags: [String!]!
+}
+
+extend type Query {
+    jobs(filter: JobFilter, page: Pagination): JobResult!
+}

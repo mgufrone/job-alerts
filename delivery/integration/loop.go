@@ -2,10 +2,16 @@ package main
 
 import (
 	context2 "context"
+	"fmt"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
+	channel2 "mgufrone.dev/job-alerts/internal/domain/channel"
+	job2 "mgufrone.dev/job-alerts/internal/domain/job"
+	user2 "mgufrone.dev/job-alerts/internal/domain/user"
+	user_channel2 "mgufrone.dev/job-alerts/internal/domain/user_channel"
 	"mgufrone.dev/job-alerts/internal/models"
 	"mgufrone.dev/job-alerts/internal/repositories/channel"
 	"mgufrone.dev/job-alerts/internal/repositories/job"
@@ -13,10 +19,11 @@ import (
 	"mgufrone.dev/job-alerts/internal/repositories/user"
 	"mgufrone.dev/job-alerts/internal/repositories/user_channel"
 	"mgufrone.dev/job-alerts/internal/services/publisher"
-	"mgufrone.dev/job-alerts/internal/services/upwork"
 	"mgufrone.dev/job-alerts/internal/services/weworkremotely"
 	"mgufrone.dev/job-alerts/internal/usecases/notification"
 	"mgufrone.dev/job-alerts/pkg/db"
+	"mgufrone.dev/job-alerts/pkg/infrastructure/criteria"
+	"mgufrone.dev/job-alerts/pkg/test_data"
 	"mgufrone.dev/job-alerts/pkg/worker"
 )
 
@@ -40,8 +47,8 @@ func main() {
 				}
 			},
 			db.New,
-			worker.AsJobWorker(upwork.NewHandler),
-			worker.AsJobWorker(weworkremotely.NewHandler),
+			//worker.AsJobWorker(upwork.Default),
+			worker.AsJobWorker(weworkremotely.Default),
 			fx.Annotate(
 				publisher.New,
 				fx.ParamTags(`group:"workers"`),
@@ -66,69 +73,69 @@ func main() {
 				)
 				return nil
 			}, fx.Annotate(
-				//	func(
-				//		repo job2.QueryResolver,
-				//		cmd job2.CommandResolver,
-				//		usrCmd user2.CommandResolver,
-				//		usrChCmd user_channel2.CommandResolver,
-				//		chCmd channel2.CommandResolver,
-				//		workers []worker.IWorker,
-				//		db *db.Instance,
-				//		logger logrus.FieldLogger,
-				//	) {
-				//		logger.Info("pumping data")
-				//		cb := job.TagCriteria()
-				//		cb = cb.
-				//			Or(
-				//				cb.Where(criteria.NewCondition("name", criteria.In, []string{"php", "devops"})),
-				//			)
-				//		_, _, _ = repo().Apply(cb).GetAndCount(context2.Background())
-				//		ctx := context2.Background()
-				//		command := cmd()
-				//		// clean up all data
-				//		db.DB().Exec("TRUNCATE jobs RESTART IDENTITY")
-				//		db.DB().Exec("TRUNCATE users RESTART IDENTITY")
-				//		db.DB().Exec("TRUNCATE job_tags RESTART IDENTITY")
-				//		db.DB().Exec("TRUNCATE notifications RESTART IDENTITY")
-				//		db.DB().Exec("TRUNCATE channels RESTART IDENTITY")
-				//		db.DB().Exec("TRUNCATE user_channels RESTART IDENTITY")
-				//		//db.DB().Where("id != ''").Delete(&models.Job{Job})
-				//		for _, wrk := range workers {
-				//			jobs, _ := wrk.Fetch(context2.Background())
-				//			for _, j := range jobs {
-				//				err := command.Create(ctx, j)
-				//				fmt.Println("job", j.ID(), err)
-				//			}
-				//		}
-				//		total, _ := repo().Count(ctx)
-				//		var (
-				//			usr user2.Entity
-				//		)
-				//		usr.SetAuthID("random-string")
-				//		usr.SetID(uuid.New())
-				//		usr.SetStatus(user2.Active)
-				//		usrCmd().Create(ctx, &usr)
-				//		ch := test_data.ValidChannel(true)
-				//		usrCh := test_data.ValidUserChannel(&usr, "email")
-				//		ch.SetUser(&usr)
-				//		chCmd().Create(ctx, ch)
-				//		usrChCmd().Create(ctx, usrCh)
-				//		fmt.Println("inserted", total)
-				//	},
-				//	fx.ParamTags(
-				//		`name:"source"`,
-				//		`name:"source"`,
-				//		`name:"source"`,
-				//		`name:"source"`,
-				//		`name:"source"`,
-				//		`group:"workers"`,
-				//	),
-				//),
-				//fx.Annotate(
-				func(uc *notification.UseCase) error {
-					return uc.Loop(context2.Background())
+				func(
+					repo job2.QueryResolver,
+					cmd job2.CommandResolver,
+					usrCmd user2.CommandResolver,
+					usrChCmd user_channel2.CommandResolver,
+					chCmd channel2.CommandResolver,
+					workers []worker.IWorker,
+					db *db.Instance,
+					logger logrus.FieldLogger,
+				) {
+					logger.Info("pumping data")
+					cb := job.TagCriteria()
+					cb = cb.
+						Or(
+							cb.Where(criteria.NewCondition("name", criteria.In, []string{"php", "devops"})),
+						)
+					_, _, _ = repo().Apply(cb).GetAndCount(context2.Background())
+					ctx := context2.Background()
+					command := cmd()
+					// clean up all data
+					//db.DB().Exec("TRUNCATE jobs RESTART IDENTITY")
+					//db.DB().Exec("TRUNCATE users RESTART IDENTITY")
+					//db.DB().Exec("TRUNCATE job_tags RESTART IDENTITY")
+					//db.DB().Exec("TRUNCATE notifications RESTART IDENTITY")
+					//db.DB().Exec("TRUNCATE channels RESTART IDENTITY")
+					//db.DB().Exec("TRUNCATE user_channels RESTART IDENTITY")
+					//db.DB().Where("id != ''").Delete(&models.JobCmd{JobCmd})
+					for _, wrk := range workers {
+						jobs, _ := wrk.Fetch(context2.Background())
+						for _, j := range jobs {
+							j, _ = wrk.FetchJob(ctx, j)
+							err := command.Create(ctx, j)
+							fmt.Println("job", j.ID(), err)
+						}
+					}
+					total, _ := repo().Count(ctx)
+					var (
+						usr user2.Entity
+					)
+					usr.SetAuthID("random-string")
+					usr.SetID(uuid.New())
+					usr.SetStatus(user2.Active)
+					usrCmd().Create(ctx, &usr)
+					ch := test_data.ValidChannel(true)
+					usrCh := test_data.ValidUserChannel(&usr, "email")
+					ch.SetUser(&usr)
+					chCmd().Create(ctx, ch)
+					usrChCmd().Create(ctx, usrCh)
+					fmt.Println("inserted", total)
 				},
+				fx.ParamTags(
+					`name:"source"`,
+					`name:"source"`,
+					`name:"source"`,
+					`name:"source"`,
+					`name:"source"`,
+					`group:"workers"`,
+				),
 			),
+			//fx.Annotate(
+			//func(uc *notification.UseCase) error {
+			//	return uc.Loop(context2.Background())
+			//),
 		),
 	)
 	ctx := context2.Background()

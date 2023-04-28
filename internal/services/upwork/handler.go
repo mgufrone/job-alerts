@@ -8,6 +8,8 @@ import (
 	"html"
 	"mgufrone.dev/job-alerts/internal/domain/job"
 	worker2 "mgufrone.dev/job-alerts/pkg/worker"
+	wrapper "mgufrone.dev/job-alerts/pkg/worker_wrapper"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -38,7 +40,7 @@ func (h *Handler) Fetch(ctx context.Context) ([]*job.Entity, error) {
 		hourlyRegExp := regexp.MustCompile(`(?i)hourly range.*: (?P<range>(?P<currencyStart>.)(?P<hourlyStart>([\d.,]+))-(?P<currencyEnd>.)(?P<hourlyEnd>([\d.,]+)))`)
 		//postDateExp := regexp.MustCompile(`(?i)posted on.*: (?P<postDate>([\w,: ]+))<br.*`)
 		roleExp := regexp.MustCompile(`(?i)category.*: (?P<role>([\w- ]+))<br`)
-		skillsExp := regexp.MustCompile(`(?i)skills.*: (?P<skills>.*)<br.*country`)
+		skillsExp := regexp.MustCompile(`(?ims)skills.*:(?P<skills>.*)<br.*skills`)
 		countryExp := regexp.MustCompile(`(?i)country.*: (?P<country>.*)`)
 		skillIdx := skillsExp.SubexpIndex("skills")
 		countryIdx := countryExp.SubexpIndex("country")
@@ -55,7 +57,7 @@ func (h *Handler) Fetch(ctx context.Context) ([]*job.Entity, error) {
 			sks := strings.Split(skillsRange[skillIdx], ",")
 			for _, v := range sks {
 				val, _ := url.QueryUnescape(v)
-				skills = append(skills, strings.TrimSpace(html.UnescapeString(val)))
+				skills = append(skills, strings.TrimSpace(html.UnescapeString(strings.ToLower(val))))
 			}
 		}
 		if len(countryRange) > 0 {
@@ -117,49 +119,12 @@ func (h *Handler) Fetch(ctx context.Context) ([]*job.Entity, error) {
 }
 
 func (h *Handler) FetchJob(ctx context.Context, job2 *job.Entity) (*job.Entity, error) {
-	return nil, nil
-	//req, err := http.NewRequestWithContext(ctx, "GET", job2.JobURL(), nil)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//content, err := h.agent.Do(req)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//if content.StatusCode != http.StatusOK {
-	//	return nil, fmt.Errorf("something wrong when retrieving data: %v", job2.JobURL())
-	//}
-	//defer content.Body.Close()
-	//doc, _ := goquery.NewDocumentFromReader(content.Body)
-	//doc.Find(".company-card").Each(func(i int, selection *goquery.Selection) {
-	//	job2.SetLocation(strings.TrimSpace(strings.ReplaceAll(selection.Find("h3:nth-of-type(1)").Text(), "–", "")))
-	//})
-	//var tags []string
-	//isRemote := false
-	//doc.Find(".listing-header > .listing-header-container > a").Each(func(i int, selection *goquery.Selection) {
-	//	tag := strings.TrimSpace(selection.Text())
-	//	if strings.Contains(tag, "View") {
-	//		return
-	//	}
-	//	if tag != "" {
-	//		if strings.Contains(strings.ToLower(tag), "remote") {
-	//			isRemote = true
-	//			return
-	//		}
-	//		if strings.Contains(strings.ToLower(tag), strings.ToLower(job2.JobType())) {
-	//			return
-	//		}
-	//		tags = append(tags, tag)
-	//	}
-	//})
-	//err = job2.SetTags(tags)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//job2.SetIsRemote(isRemote)
-	//return job2, nil
+	return job2, nil
 }
 
+func Default() worker2.IWorker {
+	return NewHandler(wrapper.NewHTTPClient(http.DefaultClient))
+}
 func NewHandler(client worker2.IHTTPClient) worker2.IWorker {
 	return &Handler{client: client}
 }

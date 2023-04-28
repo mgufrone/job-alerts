@@ -10,6 +10,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	errors3 "mgufrone.dev/job-alerts/pkg/errors"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -202,7 +203,7 @@ func (j *Entity) JobURL() string {
 }
 
 func (j *Entity) SetJobURL(jobURL string) (err error) {
-	j.jobURL = jobURL
+	j.jobURL, err = url.QueryUnescape(jobURL)
 	return
 }
 

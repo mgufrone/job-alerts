@@ -17,6 +17,7 @@ type CriteriaBuilder struct {
 	nots       []criteria.ICriteriaBuilder
 	pagination []int
 	sort       [][]string
+	selects    []string
 	prefix     string
 }
 
@@ -25,7 +26,7 @@ func NewCriteriaBuilder(prefix string) criteria.ICriteriaBuilder {
 }
 
 func (d CriteriaBuilder) has(slices []criteria.ICriteriaBuilder, other string) bool {
-	for _, k := range d.ands {
+	for _, k := range slices {
 		if v, ok := k.(CriteriaBuilder); ok && v.prefix == other {
 			return true
 		}
@@ -34,6 +35,9 @@ func (d CriteriaBuilder) has(slices []criteria.ICriteriaBuilder, other string) b
 }
 func (d CriteriaBuilder) Has(other string) bool {
 	return d.has(d.ands, other) || d.has(d.ors, other) || d.has(d.nots, other)
+}
+func (d CriteriaBuilder) GetSelects() []string {
+	return d.selects
 }
 func (d CriteriaBuilder) Prefix() string {
 	return d.prefix
@@ -61,7 +65,8 @@ func (d CriteriaBuilder) Copy() criteria.ICriteriaBuilder {
 }
 
 func (d CriteriaBuilder) Select(fields ...string) criteria.ICriteriaBuilder {
-	return CriteriaBuilder{}
+	d.selects = fields
+	return d
 }
 
 func (d CriteriaBuilder) Where(condition ...criteria.ICondition) criteria.ICriteriaBuilder {

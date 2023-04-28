@@ -1,0 +1,28 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+scalar Time
+input Pagination {
+  page: Int!
+  perPage: Int!
+}
+
+type PageInfo {
+  total: Int!
+}
+
+type User {
+  id: ID!
+  name: String!
+  authID: String!
+  role: Int!
+}
+
+type Query {
+  version: String!
+}
+
+
+type Mutation {
+  ping(id: ID!): Boolean
+}

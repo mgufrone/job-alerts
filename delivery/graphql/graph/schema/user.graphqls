@@ -1,0 +1,11 @@
+
+directive @authentiated on FIELD_DEFINITION
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
+enum Role {
+    User
+    Guest
+    Admin
+    Premium
+}
+

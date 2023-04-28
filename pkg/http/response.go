@@ -57,7 +57,6 @@ func Error(ctx *gin.Context, err error) {
 }
 func Unauthorized(ctx *gin.Context, err error) {
 	ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-	panic(err)
 }
 func NotFound(ctx *gin.Context) {
 	ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Not found"})

@@ -1,3 +1,5 @@
 .idea
 report*
 *.out
+.env
+

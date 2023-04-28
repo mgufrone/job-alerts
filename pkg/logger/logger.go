@@ -2,6 +2,7 @@ package logger
 
 import (
 	log "github.com/sirupsen/logrus"
+	"mgufrone.dev/job-alerts/pkg/env"
 	"os"
 )
 
@@ -34,6 +35,13 @@ func parseLogLevel(level string) log.Level {
 	}
 }
 
+func Default() log.FieldLogger {
+	return NewLogger(
+		env.GetOr("APP_NAME", "app"),
+		env.GetOr("APP_ENV", "dev"),
+		env.GetOr("APP_LOG_LEVEL", "info"),
+	)
+}
 func NewLogger(appName, env, level string) *log.Entry {
 	logger := log.StandardLogger()
 	logger.SetOutput(os.Stdout)

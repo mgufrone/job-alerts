@@ -1,0 +1,33 @@
+
+
+type Criteria {
+    key: String!
+    value: String!
+}
+
+type NotificationChannel {
+    id: ID!
+    criteria: [Criteria!]!
+    owner: User!
+}
+input NotificationFilter {
+    ids: [ID!]
+}
+type NotificationResult{
+    edges: [NotificationChannel!]!
+    pageInfo: PageInfo!
+}
+input InputCriteria {
+    key: String!
+    value: String!
+}
+input NewChannel {
+    criteria: [InputCriteria]!
+}
+extend type Query {
+    channels(filter: NotificationFilter, page: Pagination): NotificationResult! @hasRole(role: User)
+}
+
+extend type Mutation {
+    createChannel(input: NewChannel!): NotificationChannel! @hasRole(role: User)
+}

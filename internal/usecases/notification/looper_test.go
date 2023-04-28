@@ -17,12 +17,6 @@ import (
 	"testing"
 )
 
-type testCaseLoop struct {
-	in       *notification.Entity
-	before   func(mp *mockValueLoop, ent *notification.Entity)
-	after    func(t *testing.T, mp *mockValueLoop, ent *notification.Entity)
-	wantsErr bool
-}
 type mockValueLoop struct {
 	chQuery     *channel.MockQueryRepository
 	chCmd       *channel.MockCommandRepository
@@ -33,15 +27,6 @@ type mockValueLoop struct {
 	usrChQuery  *user_channel.MockQueryRepository
 	collections []*publisher.MockPublisher
 	useCase     *UseCase
-}
-
-func getMockCall(m *mock.Mock, methodName string) *mock.Call {
-	for _, c := range m.Calls {
-		if c.Method == methodName {
-			return &c
-		}
-	}
-	return nil
 }
 
 func setupMockLoop() *mockValueLoop {
@@ -97,11 +82,11 @@ func TestUseCase_Looper(t *testing.T) {
 		- source (upwork, weworkremotely)
 		- range salary
 		- is remote
-		- job/contract type (full time, part time, contract/freelance)
+		- job/contract type (full time, part-time, contract/freelance)
 	- for now, any defined criteria will be glued with AND. so no customization control flow for now.
 	*/
 	// if match found, check if the job is already listed in the notifications table
-	// else, create a new entry but it will also adhere the schedule if set in the channel
+	// else, create a new entry, but it will also adhere the schedule if set in the channel
 	// ideally, the notification repository will have observer that will publish it to the user channels
 	cases := []struct {
 		before func(mv *mockValueLoop)
@@ -227,7 +212,7 @@ func TestUseCase_Looper(t *testing.T) {
 				mv.jQuery.On("Apply", mock.Anything).Return(mv.usrQuery)
 				mv.jQuery.On("GetAndCount", mock.Anything).Return(jobs, int64(2), nil)
 				var notif notification.Entity
-				notif.SetJob(jobs[0])
+				_ = notif.SetJob(jobs[0])
 				mv.nQuery.On("CriteriaBuilder").Return(mCriteria2)
 				mv.nQuery.On("Apply", mock.Anything).Return(mv.usrQuery)
 				mv.nQuery.On("GetAndCount", mock.Anything).Once().Return([]*notification.Entity{&notif}, int64(1), nil)
@@ -349,7 +334,7 @@ func TestUseCase_Looper(t *testing.T) {
 		ml := setupMockLoop()
 		ctx := context.Background()
 		c.before(ml)
-		ml.useCase.Loop(ctx)
+		_ = ml.useCase.Loop(ctx)
 		c.after(t, ml)
 	}
 }

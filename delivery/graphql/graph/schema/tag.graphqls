@@ -1,0 +1,14 @@
+
+type Tag {
+    id: ID!
+    name: String!
+    jobs: Int!
+}
+
+type TagResult {
+    tags: [Tag!]
+    pageInfo: PageInfo!
+}
+extend type Query {
+    tags(filter: String!, page: Pagination): TagResult!
+}

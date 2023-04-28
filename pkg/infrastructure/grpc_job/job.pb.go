@@ -428,7 +428,7 @@ func (x *Job) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Job.ProtoReflect.Descriptor instead.
+// Deprecated: Use JobCmd.ProtoReflect.Descriptor instead.
 func (*Job) Descriptor() ([]byte, []int) {
 	return file_job_proto_rawDescGZIP(), []int{6}
 }
@@ -644,25 +644,25 @@ var file_job_proto_goTypes = []interface{}{
 	(*JobData)(nil),        // 3: service.JobData
 	(*Query)(nil),          // 4: service.Query
 	(*JobFilter)(nil),      // 5: service.JobFilter
-	(*Job)(nil),            // 6: service.Job
+	(*Job)(nil),            // 6: service.JobCmd
 }
 var file_job_proto_depIdxs = []int32{
-	6,  // 0: service.JobCount.data:type_name -> service.Job
-	6,  // 1: service.JobData.data:type_name -> service.Job
+	6,  // 0: service.JobCount.data:type_name -> service.JobCmd
+	6,  // 1: service.JobData.data:type_name -> service.JobCmd
 	4,  // 2: service.Query.and:type_name -> service.Query
 	4,  // 3: service.Query.or:type_name -> service.Query
 	4,  // 4: service.JobFilter.query:type_name -> service.Query
 	5,  // 5: service.JobService.GetAll:input_type -> service.JobFilter
 	5,  // 6: service.JobService.Count:input_type -> service.JobFilter
 	5,  // 7: service.JobService.GetAndCount:input_type -> service.JobFilter
-	6,  // 8: service.JobService.Create:input_type -> service.Job
-	6,  // 9: service.JobService.Update:input_type -> service.Job
-	6,  // 10: service.JobService.Delete:input_type -> service.Job
+	6,  // 8: service.JobService.Create:input_type -> service.JobCmd
+	6,  // 9: service.JobService.Update:input_type -> service.JobCmd
+	6,  // 10: service.JobService.Delete:input_type -> service.JobCmd
 	3,  // 11: service.JobService.GetAll:output_type -> service.JobData
 	1,  // 12: service.JobService.Count:output_type -> service.JobCountResult
 	2,  // 13: service.JobService.GetAndCount:output_type -> service.JobCount
-	6,  // 14: service.JobService.Create:output_type -> service.Job
-	6,  // 15: service.JobService.Update:output_type -> service.Job
+	6,  // 14: service.JobService.Create:output_type -> service.JobCmd
+	6,  // 15: service.JobService.Update:output_type -> service.JobCmd
 	0,  // 16: service.JobService.Delete:output_type -> service.JobResult
 	11, // [11:17] is the sub-list for method output_type
 	5,  // [5:11] is the sub-list for method input_type

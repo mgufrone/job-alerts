@@ -24,7 +24,7 @@ func WhereID(id uuid.UUID) criteria.ICondition {
 	}
 	return criteria.NewCondition("id", criteria.Eq, id.String())
 }
-func WhereInID(id []string) criteria.ICondition {
+func WhereInID(id []uuid.UUID) criteria.ICondition {
 	if len(id) == 0 {
 		return nil
 	}

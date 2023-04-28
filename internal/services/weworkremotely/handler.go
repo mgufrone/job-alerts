@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"mgufrone.dev/job-alerts/internal/domain/job"
 	worker2 "mgufrone.dev/job-alerts/pkg/worker"
+	wrapper "mgufrone.dev/job-alerts/pkg/worker_wrapper"
 	"net/http"
 	"strings"
 )
@@ -33,6 +34,7 @@ func (h *Handler) Fetch(ctx context.Context) ([]*job.Entity, error) {
 		roleString := strings.Replace(feed.Title, "–", "-", -1)
 		roleSplit := strings.Split(roleString, ":")
 		companyName, role := strings.TrimSpace(roleSplit[0]), strings.TrimSpace(roleSplit[1])
+
 		companyURL := fmt.Sprintf("%s/%s/%s", host, "company", strings.Replace(strings.ToLower(companyName), " ", "-", -1))
 		jb, err1 := job.NewJob(
 			uuid.New(),
@@ -69,17 +71,23 @@ func (h *Handler) FetchJob(ctx context.Context, job2 *job.Entity) (*job.Entity, 
 	})
 	var tags []string
 	isRemote := false
-	doc.Find(".listing-header > .listing-header-container > a").Each(func(i int, selection *goquery.Selection) {
+
+	//fmt.Println("found tags", contentTags)
+	doc.Find(".listing-header .listing-header-container > a").Each(func(i int, selection *goquery.Selection) {
+		if selection.Find(".listing-tag").Length() <= 0 {
+			return
+		}
 		tag := strings.TrimSpace(selection.Text())
+		tag = strings.ToLower(tag)
 		if strings.Contains(tag, "View") {
 			return
 		}
 		if tag != "" {
-			if strings.Contains(strings.ToLower(tag), "remote") {
+			if strings.Contains(tag, "remote") {
 				isRemote = true
 				return
 			}
-			if strings.Contains(strings.ToLower(tag), strings.ToLower(job2.JobType())) {
+			if strings.Contains(tag, strings.ToLower(job2.JobType())) {
 				return
 			}
 			tags = append(tags, tag)
@@ -95,4 +103,7 @@ func (h *Handler) FetchJob(ctx context.Context, job2 *job.Entity) (*job.Entity, 
 
 func NewHandler(client worker2.IHTTPClient) worker2.IWorker {
 	return &Handler{client: client}
+}
+func Default() worker2.IWorker {
+	return NewHandler(wrapper.NewHTTPClient(http.DefaultClient))
 }
