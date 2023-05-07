@@ -2,27 +2,32 @@ package entrypoints
 
 import (
 	"context"
-	"mgufrone.dev/job-alerts/delivery/cli/app"
+	"github.com/urfave/cli"
 	"mgufrone.dev/job-alerts/delivery/cli/handlers"
-	"mgufrone.dev/job-alerts/delivery/cli/helpers"
 	"mgufrone.dev/job-alerts/internal/services/upwork"
 	"mgufrone.dev/job-alerts/internal/services/weworkremotely"
 	"mgufrone.dev/job-alerts/pkg/worker"
 )
 
-type JobCmd struct {
-	helpers.Context
-	Source string `arg:"" name:"source" help:"pull jobs from available sources: upwork, weworkremotely"`
-}
-
-func (j *JobCmd) Run(console *app.Kernel) error {
-	workers := map[string]worker.IWorker{
-		"upwork":         upwork.Default(),
-		"weworkremotely": weworkremotely.Default(),
+func NewJobEntrypoint(hndl *handlers.Job) cli.Command {
+	return cli.Command{
+		Name:      "job",
+		Aliases:   []string{"j"},
+		Usage:     "fetch jobs from available sources",
+		ArgsUsage: "[upwork, weworkremotely]",
+		Action: func(cCtx *cli.Context) error {
+			workers := map[string]worker.IWorker{
+				"upwork":         upwork.Default(),
+				"weworkremotely": weworkremotely.Default(),
+			}
+			source := cCtx.Args().First()
+			debug := cCtx.Bool("debug")
+			dryRun := cCtx.Bool("dry-run")
+			return hndl.Pull(context.TODO(), handlers.PullParams{
+				Worker: workers[source],
+				Debug:  debug,
+				DryRun: dryRun,
+			})
+		},
 	}
-	return console.Job.Pull(context.TODO(), handlers.PullParams{
-		Worker: workers[j.Source],
-		Debug:  j.Debug,
-		DryRun: j.DryRun,
-	})
 }

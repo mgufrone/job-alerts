@@ -34,6 +34,24 @@ type Entity struct {
 	// timestamps
 	createdAt time.Time
 	updatedAt time.Time
+	title     string
+}
+
+func (j *Entity) Id() uuid.UUID {
+	return j.id
+}
+
+func (j *Entity) SetId(id uuid.UUID) {
+	j.id = id
+}
+
+func (j *Entity) Title() string {
+	return j.title
+}
+
+func (j *Entity) SetTitle(title string) (err error) {
+	j.title = title
+	return nil
 }
 
 func (j *Entity) Source() string {
@@ -51,7 +69,7 @@ func (j *Entity) SetSource(source string) (err error) {
 
 func NewJob(
 	id uuid.UUID, role, companyName, companyURL, description, jobURL, source, location string,
-	tags []string) (*Entity, error) {
+	tags []string, title string) (*Entity, error) {
 	job := &Entity{}
 	err := try.RunOrError(func() error {
 		return job.SetID(id)
@@ -71,6 +89,8 @@ func NewJob(
 		return job.SetLocation(location)
 	}, func() error {
 		return job.SetSource(source)
+	}, func() error {
+		return job.SetTitle(title)
 	})
 	if err != nil {
 		return nil, err

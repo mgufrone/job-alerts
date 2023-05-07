@@ -40,7 +40,7 @@ func (h *Handler) Fetch(ctx context.Context) ([]*job.Entity, error) {
 			uuid.New(),
 			role,
 			companyName, companyURL,
-			feed.Description, feed.Link, WorkerName, "-", []string{})
+			feed.Description, feed.Link, WorkerName, "-", []string{}, feed.Title)
 		if err1 != nil {
 			log.Error("cannot parse correctly", err)
 			continue

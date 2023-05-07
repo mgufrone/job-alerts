@@ -19,6 +19,7 @@ type JobTag struct {
 
 type Job struct {
 	db.Entity
+	Title       string `gorm:"index"`
 	Role        string `gorm:"index"`
 	CompanyName string `gorm:"index"`
 	CompanyURL  string `gorm:"index"`
@@ -51,6 +52,7 @@ func (j *Job) FromDomain(job2 *job.Entity) {
 		tags[idx] = &Tag{Name: t}
 	}
 	j.ID = job2.ID()
+	j.Title = job2.Title()
 	j.Role = job2.Role()
 	j.CompanyName = job2.CompanyName()
 	j.CompanyURL = job2.CompanyURL()
@@ -83,6 +85,7 @@ func (j *Job) Transform() (*job.Entity, error) {
 		j.Source,
 		j.Location,
 		tags,
+		j.Title,
 	)
 	if err != nil {
 		return nil, err
@@ -97,5 +100,6 @@ func (j *Job) Transform() (*job.Entity, error) {
 	jb.SetCreatedAt(j.CreatedAt)
 	jb.SetUpdatedAt(j.UpdatedAt)
 	jb.SetIsRemote(j.IsRemote)
+	jb.SetTitle(j.Title)
 	return jb, err
 }

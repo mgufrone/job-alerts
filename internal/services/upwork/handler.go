@@ -2,6 +2,7 @@ package upwork
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/mmcdole/gofeed"
 	log "github.com/sirupsen/logrus"
@@ -39,8 +40,8 @@ func (h *Handler) Fetch(ctx context.Context) ([]*job.Entity, error) {
 		)
 		hourlyRegExp := regexp.MustCompile(`(?i)hourly range.*: (?P<range>(?P<currencyStart>.)(?P<hourlyStart>([\d.,]+))-(?P<currencyEnd>.)(?P<hourlyEnd>([\d.,]+)))`)
 		//postDateExp := regexp.MustCompile(`(?i)posted on.*: (?P<postDate>([\w,: ]+))<br.*`)
-		roleExp := regexp.MustCompile(`(?i)category.*: (?P<role>([\w- ]+))<br`)
-		skillsExp := regexp.MustCompile(`(?ims)skills.*:(?P<skills>.*)<br.*skills`)
+		roleExp := regexp.MustCompile(`(?i)category.*: (?P<role>(.*))(<br /><b>skill)?`)
+		skillsExp := regexp.MustCompile(`(?ims)skills.*:(?P<skills>.*)<br.*`)
 		countryExp := regexp.MustCompile(`(?i)country.*: (?P<country>.*)`)
 		skillIdx := skillsExp.SubexpIndex("skills")
 		countryIdx := countryExp.SubexpIndex("country")
@@ -97,15 +98,18 @@ func (h *Handler) Fetch(ctx context.Context) ([]*job.Entity, error) {
 		var role string
 		if len(roles) > 0 {
 			role = roles[roleIdx]
+		} else {
+			fmt.Println("role not found. here is the description")
+			fmt.Println(feed.Description)
 		}
 		companyURL := "-"
 		jb, err1 := job.NewJob(
 			uuid.New(),
 			role,
 			companyName, companyURL,
-			feed.Description, feed.Link, WorkerName, country, []string{})
+			feed.Description, feed.Link, WorkerName, country, []string{}, feed.Title)
 		if err1 != nil {
-			log.Error("cannot parse correctly", err1)
+			log.Errorln("cannot parse correctly", err1, feed.Link)
 			continue
 		}
 		jb.SetJobType(jobType)

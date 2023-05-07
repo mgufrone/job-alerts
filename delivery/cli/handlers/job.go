@@ -26,7 +26,6 @@ func NewJob(logger logrus.FieldLogger, query job.QueryResolver, cmd job.CommandR
 }
 
 func (j *Job) Pull(ctx context.Context, input PullParams) error {
-	j.logger.Infoln("input", input.Debug, input.DryRun)
 	var (
 		jbs         []*job.Entity
 		query       = j.query()
@@ -36,9 +35,9 @@ func (j *Job) Pull(ctx context.Context, input PullParams) error {
 		canContinue = true
 	)
 	err := try.RunOrError(func() (err error) {
-		j.logger.Debug("fetching jobs")
+		j.logger.Infoln("start fetching jobs")
 		jbs, err = input.Worker.Fetch(ctx)
-		j.logger.Debugf("found %d jobs", len(jbs))
+		j.logger.Infof("found %d jobs", len(jbs))
 		return
 	}, func() error {
 		for _, jb := range jbs {
@@ -89,7 +88,7 @@ func (j *Job) Pull(ctx context.Context, input PullParams) error {
 		j.logger.Debugln("nothing to insert. skipping")
 		return nil
 	}
-
+	j.logger.Infof("inserting %d jobs", len(jbs))
 	for _, jb := range jbs {
 		if v, ok := counts[jb.JobURL()]; ok && v == 1 {
 			continue
@@ -102,6 +101,8 @@ func (j *Job) Pull(ctx context.Context, input PullParams) error {
 			j.logger.Errorln("failed to save: ", jb.ID(), jb.JobURL(), err)
 			continue
 		}
+
 	}
+	j.logger.Infoln("done")
 	return nil
 }

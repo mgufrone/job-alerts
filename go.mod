@@ -6,7 +6,6 @@ require (
 	github.com/99designs/gqlgen v0.17.25
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/aklinkert/go-gorm-logrus-logger v1.0.0
-	github.com/alecthomas/kong v0.7.1
 	github.com/buger/jsonparser v1.1.1
 	github.com/dave/jennifer v1.6.0
 	github.com/dgraph-io/ristretto v0.1.1
@@ -25,17 +24,19 @@ require (
 	github.com/mmcdole/gofeed v1.1.3
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
+	github.com/pressly/goose/v3 v3.10.0
 	github.com/redis/go-redis/v9 v9.0.0-rc.4
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.2
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
+	github.com/urfave/cli v1.22.3
 	github.com/vektah/gqlparser/v2 v2.5.1
 	github.com/xujiajun/nutsdb v0.11.1
 	go.uber.org/fx v1.19.1
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/sync v0.1.0
 	golang.org/x/text v0.9.0
-	golang.org/x/tools v0.6.0
+	golang.org/x/tools v0.7.0
 	google.golang.org/grpc v1.52.3
 	google.golang.org/protobuf v1.28.1
 	gorm.io/driver/postgres v1.4.6
@@ -91,8 +92,8 @@ require (
 	go.uber.org/dig v1.16.1 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/crypto v0.5.0 // indirect
-	golang.org/x/mod v0.8.0 // indirect
+	golang.org/x/crypto v0.7.0 // indirect
+	golang.org/x/mod v0.9.0 // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	google.golang.org/genproto v0.0.0-20230127162408-596548ed4efa // indirect

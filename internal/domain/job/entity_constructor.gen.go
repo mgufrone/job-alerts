@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func New(id uuid.UUID, role string, companyName string, companyURL string, description string, jobURL string, tags []string, location string, source string, jobType string, isRemote bool, salary []float64, salaryCurrency string, createdAt time.Time, updatedAt time.Time) (ent *Entity, err error) {
+func New(id uuid.UUID, role string, companyName string, companyURL string, description string, jobURL string, tags []string, location string, source string, jobType string, isRemote bool, salary []float64, salaryCurrency string, createdAt time.Time, updatedAt time.Time, title string) (ent *Entity, err error) {
 	var res Entity
 	err = try.RunOrError(func() error {
 		return res.SetID(id)
@@ -39,6 +39,8 @@ func New(id uuid.UUID, role string, companyName string, companyURL string, descr
 		return res.SetCreatedAt(createdAt)
 	}, func() error {
 		return res.SetUpdatedAt(updatedAt)
+	}, func() error {
+		return res.SetTitle(title)
 	})
 	if err == nil {
 		ent = &res

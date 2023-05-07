@@ -107,6 +107,12 @@ func (e *Entity) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		return e.SetUpdatedAt(val)
+	}, func() error {
+		val, err := jsonparser.GetString(data, "title")
+		if err != nil {
+			return err
+		}
+		return e.SetTitle(val)
 	})
 }
 func (e *Entity) MarshalJSON() ([]byte, error) {
@@ -126,6 +132,7 @@ func (e *Entity) MarshalJSON() ([]byte, error) {
 		"salaryCurrency": e.SalaryCurrency(),
 		"createdAt":      e.CreatedAt().UnixMilli(),
 		"updatedAt":      e.UpdatedAt().UnixMilli(),
+		"title":          e.Title(),
 	}
 	return json.Marshal(res)
 }
